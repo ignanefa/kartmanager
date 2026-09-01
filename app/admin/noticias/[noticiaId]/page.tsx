@@ -1,7 +1,20 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateNoticia } from '@/app/admin/campeonatos/[id]/noticias/actions'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ noticiaId: string }>
+}): Promise<Metadata> {
+  const { noticiaId } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('noticia').select('titulo').eq('id', noticiaId).single()
+  if (!data) return { title: 'Noticia' }
+  return { title: data.titulo }
+}
 
 export default async function NoticiaEditPage({
   params,

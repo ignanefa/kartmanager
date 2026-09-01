@@ -1,8 +1,26 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateTipoCarrera } from '../actions'
 import PuntosEditor from './PuntosEditor'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('tipo_carrera')
+    .select('nombre, campeonato:campeonato_id(nombre, anio)')
+    .eq('id', id)
+    .single()
+  if (!data) return { title: 'Tipo de carrera' }
+  const camp = data.campeonato as unknown as { nombre: string; anio: number }
+  return { title: `${data.nombre} · ${camp.nombre} ${camp.anio}` }
+}
 
 export default async function TipoCarreraDetailPage({
   params,

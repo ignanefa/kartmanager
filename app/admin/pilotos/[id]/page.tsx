@@ -1,8 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updatePiloto, deletePiloto } from '../actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('piloto').select('nombre, apellido, numero').eq('id', id).single()
+  if (!data) return { title: 'Piloto' }
+  return { title: `#${data.numero} ${data.nombre} ${data.apellido}` }
+}
 
 export default async function PilotoDetailPage({
   params,

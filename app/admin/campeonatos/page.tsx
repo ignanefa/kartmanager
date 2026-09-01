@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createCampeonato } from './actions'
+
+export const metadata: Metadata = { title: 'Campeonatos' }
 
 export default async function CampeonatosPage() {
   const supabase = await createClient()
