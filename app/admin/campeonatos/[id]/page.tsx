@@ -26,9 +26,9 @@ export default async function CampeonatoDetailPage({
 
   const [{ data: campeonato }, { data: categorias }, { data: tipos }, { data: fechas }] = await Promise.all([
     supabase.from('campeonato').select('*').eq('id', id).single(),
-    supabase.from('categoria').select('*').eq('campeonato_id', id).order('orden').order('nombre'),
+    supabase.from('categoria').select('*, piloto(count)').eq('campeonato_id', id).order('orden').order('nombre'),
     supabase.from('tipo_carrera').select('*').eq('campeonato_id', id).order('orden').order('nombre'),
-    supabase.from('fecha').select('*').eq('campeonato_id', id).order('numero'),
+    supabase.from('fecha').select('*, sesion(count)').eq('campeonato_id', id).order('numero'),
   ])
 
   if (!campeonato) notFound()
@@ -168,9 +168,15 @@ export default async function CampeonatoDetailPage({
             >
               <Link
                 href={`/admin/categorias/${cat.id}`}
-                className="flex-1 font-medium text-gray-900 hover:text-blue-600"
+                className="flex-1 min-w-0"
               >
-                {cat.nombre}
+                <span className="font-medium text-gray-900 hover:text-blue-600">{cat.nombre}</span>
+                {(() => {
+                  const count = (cat.piloto as unknown as { count: number }[])?.[0]?.count ?? 0
+                  return count > 0 ? (
+                    <span className="ml-2 text-xs text-gray-400">{count} piloto{count !== 1 ? 's' : ''}</span>
+                  ) : null
+                })()}
               </Link>
               <div className="flex items-center gap-1 ml-4 shrink-0">
                 <form action={moveCategoria}>
@@ -332,14 +338,20 @@ export default async function CampeonatoDetailPage({
               key={f.id}
               className="flex items-center justify-between rounded-lg bg-white px-4 py-3 ring-1 ring-gray-200"
             >
-              <Link href={`/admin/fechas/${f.id}`} className="flex-1 hover:text-blue-600">
-                <span className="font-medium text-gray-900">
+              <Link href={`/admin/fechas/${f.id}`} className="flex-1 min-w-0">
+                <span className="font-medium text-gray-900 hover:text-blue-600">
                   Fecha {f.numero}{f.nombre ? ` — ${f.nombre}` : ''}
                 </span>
                 <span className="ml-3 text-sm text-gray-500">
                   {f.circuito} · {formatDate(f.fecha_desde)}
                   {f.fecha_hasta ? ` al ${formatDate(f.fecha_hasta)}` : ''}
                 </span>
+                {(() => {
+                  const count = (f.sesion as unknown as { count: number }[])?.[0]?.count ?? 0
+                  return count > 0 ? (
+                    <span className="ml-2 text-xs text-gray-400">{count} sesión{count !== 1 ? 'es' : ''}</span>
+                  ) : null
+                })()}
               </Link>
               <div className="flex items-center gap-3 ml-4 shrink-0">
                 <form action={toggleFechaPublicada}>
