@@ -22,6 +22,8 @@ export default async function CampeonatoPublicPage({
     .eq('publicada', true)
     .order('numero')
 
+  const today = new Date().toISOString().slice(0, 10)
+
   return (
     <div>
       <h2 className="text-xl font-bold text-gray-900">Calendario de fechas</h2>
@@ -33,29 +35,43 @@ export default async function CampeonatoPublicPage({
       )}
 
       <div className="mt-4 space-y-3">
-        {fechas?.map((f) => (
-          <Link
-            key={f.id}
-            href={`/campeonato/${id}/fechas/${f.id}`}
-            className="block rounded-lg bg-white px-5 py-4 ring-1 ring-gray-200 hover:ring-blue-400 transition-all"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold text-gray-900">
-                  Fecha {f.numero}
-                  {f.nombre ? ` — ${f.nombre}` : ''}
-                </p>
-                <p className="mt-0.5 text-sm text-gray-500">{f.circuito}</p>
+        {fechas?.map((f) => {
+          const isPast = (f.fecha_hasta ?? f.fecha_desde) < today
+          return (
+            <Link
+              key={f.id}
+              href={`/campeonato/${id}/fechas/${f.id}`}
+              className={`block rounded-lg px-5 py-4 ring-1 transition-all ${
+                isPast
+                  ? 'bg-gray-50 ring-gray-200 hover:ring-gray-300 opacity-70'
+                  : 'bg-white ring-gray-200 hover:ring-blue-400'
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <p className={`font-semibold ${isPast ? 'text-gray-500' : 'text-gray-900'}`}>
+                    Fecha {f.numero}
+                    {f.nombre ? ` — ${f.nombre}` : ''}
+                  </p>
+                  <p className="mt-0.5 text-sm text-gray-500">{f.circuito}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-600">
+                    {formatDate(f.fecha_desde)}
+                    {f.fecha_hasta && f.fecha_hasta !== f.fecha_desde
+                      ? ` – ${formatDate(f.fecha_hasta)}`
+                      : ''}
+                  </p>
+                  {isPast && (
+                    <span className="text-xs rounded-full bg-gray-100 text-gray-500 px-2 py-0.5 font-medium">
+                      Finalizada
+                    </span>
+                  )}
+                </div>
               </div>
-              <p className="text-sm font-medium text-gray-700">
-                {formatDate(f.fecha_desde)}
-                {f.fecha_hasta && f.fecha_hasta !== f.fecha_desde
-                  ? ` – ${formatDate(f.fecha_hasta)}`
-                  : ''}
-              </p>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )
