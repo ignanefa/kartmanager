@@ -16,7 +16,7 @@ export default async function NoticiasAdminPage({
     supabase.from('campeonato').select('id, nombre').eq('id', id).single(),
     supabase
       .from('noticia')
-      .select('id, titulo, publicada, created_at')
+      .select('id, titulo, publicada, fecha_pub, created_at')
       .eq('campeonato_id', id)
       .order('created_at', { ascending: false }),
   ])
@@ -44,9 +44,12 @@ export default async function NoticiasAdminPage({
           >
             <Link
               href={`/admin/noticias/${n.id}?campeonatoId=${id}`}
-              className="flex-1 font-medium text-gray-900 hover:text-blue-600"
+              className="flex-1 min-w-0"
             >
-              {n.titulo}
+              <p className="font-medium text-gray-900 hover:text-blue-600">{n.titulo}</p>
+              <p className="mt-0.5 text-xs text-gray-400">
+                {new Date(n.fecha_pub ?? n.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
             </Link>
             <div className="flex items-center gap-3 ml-4 shrink-0">
               <form action={toggleNoticiaPublicada}>
