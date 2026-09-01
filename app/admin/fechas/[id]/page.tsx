@@ -29,7 +29,7 @@ export default async function FechaDetailPage({
 
   const campeonato = fecha.campeonato as { id: string; nombre: string }
 
-  const [{ data: sesiones }, { data: categorias }, { data: tipos }] = await Promise.all([
+  const [{ data: sesiones }, { data: categorias }, { data: tipos }, { data: preinscripciones }] = await Promise.all([
     supabase
       .from('sesion')
       .select('*, categoria:categoria_id(nombre), tipo_carrera:tipo_carrera_id(nombre)')
@@ -47,7 +47,14 @@ export default async function FechaDetailPage({
       .eq('campeonato_id', campeonato.id)
       .order('orden')
       .order('nombre'),
+    supabase
+      .from('preinscripcion')
+      .select('estado')
+      .eq('fecha_id', id),
   ])
+
+  const nuevosCount = preinscripciones?.filter((p) => p.estado === 'nuevo').length ?? 0
+  const totalCount = preinscripciones?.length ?? 0
 
   return (
     <div>
@@ -67,9 +74,16 @@ export default async function FechaDetailPage({
           </h1>
           <Link
             href={`/admin/fechas/${id}/preinscripciones`}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Preinscripciones
+            {totalCount > 0 && (
+              <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                nuevosCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
+              }`}>
+                {nuevosCount > 0 ? nuevosCount : totalCount}
+              </span>
+            )}
           </Link>
         </div>
         <p className="mt-1 text-sm text-gray-500">
