@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { updateCampeonato } from '../actions'
 import { createCategoria, deleteCategoria } from '@/app/admin/categorias/actions'
 import { createTipoCarrera, deleteTipoCarrera } from '@/app/admin/tipos-carrera/actions'
-import { createFecha, deleteFecha } from '@/app/admin/fechas/actions'
+import { createFecha, deleteFecha, toggleFechaPublicada } from '@/app/admin/fechas/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
 
 function formatDate(d: string) {
@@ -170,13 +170,11 @@ export default async function CampeonatoDetailPage({
                 {cat.nombre}
               </Link>
               <div className="flex items-center gap-4">
-                <form action={deleteCategoria}>
-                  <input type="hidden" name="id" value={cat.id} />
-                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
-                  <button type="submit" className="text-sm text-red-400 hover:text-red-600 transition-colors">
-                    Eliminar
-                  </button>
-                </form>
+                <ConfirmDelete
+                  action={deleteCategoria}
+                  fields={[{ name: 'id', value: cat.id }, { name: 'campeonatoId', value: campeonato.id }]}
+                  message={`¿Eliminar la divisional "${cat.nombre}"? Se eliminarán también sus pilotos si no tienen resultados.`}
+                />
               </div>
             </div>
           ))}
@@ -236,13 +234,11 @@ export default async function CampeonatoDetailPage({
                 >
                   {tipo.otorga_puntos ? 'Puntúa' : 'Sin puntos'}
                 </span>
-                <form action={deleteTipoCarrera}>
-                  <input type="hidden" name="id" value={tipo.id} />
-                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
-                  <button type="submit" className="text-sm text-red-400 hover:text-red-600 transition-colors">
-                    Eliminar
-                  </button>
-                </form>
+                <ConfirmDelete
+                  action={deleteTipoCarrera}
+                  fields={[{ name: 'id', value: tipo.id }, { name: 'campeonatoId', value: campeonato.id }]}
+                  message={`¿Eliminar el tipo de carrera "${tipo.nombre}"? Solo es posible si no tiene sesiones registradas.`}
+                />
               </div>
             </div>
           ))}
@@ -311,14 +307,23 @@ export default async function CampeonatoDetailPage({
                   {f.fecha_hasta ? ` al ${formatDate(f.fecha_hasta)}` : ''}
                 </span>
               </Link>
-              <div className="flex items-center gap-4 ml-4 shrink-0">
-                <span
-                  className={`text-xs rounded-full px-2 py-0.5 font-medium ${
-                    f.publicada ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {f.publicada ? 'Publicada' : 'Borrador'}
-                </span>
+              <div className="flex items-center gap-3 ml-4 shrink-0">
+                <form action={toggleFechaPublicada}>
+                  <input type="hidden" name="id" value={f.id} />
+                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
+                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                    <input
+                      name="publicada"
+                      type="checkbox"
+                      defaultChecked={f.publicada}
+                      className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      onChange={(e) => (e.target.form as HTMLFormElement).requestSubmit()}
+                    />
+                    <span className={`text-xs font-medium ${f.publicada ? 'text-green-700' : 'text-gray-400'}`}>
+                      {f.publicada ? 'Publicada' : 'Borrador'}
+                    </span>
+                  </label>
+                </form>
                 <ConfirmDelete
                   action={deleteFecha}
                   fields={[{ name: 'id', value: f.id }, { name: 'campeonatoId', value: campeonato.id }]}

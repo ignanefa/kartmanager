@@ -69,6 +69,21 @@ export async function updateFecha(formData: FormData) {
   redirect(`/admin/fechas/${id}`)
 }
 
+export async function toggleFechaPublicada(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const campeonatoId = formData.get('campeonatoId') as string
+  const publicada = formData.get('publicada') === 'on'
+
+  await supabase.from('fecha').update({ publicada }).eq('id', id)
+
+  revalidatePath(`/admin/campeonatos/${campeonatoId}`)
+  revalidatePath(`/admin/fechas/${id}`)
+}
+
 export async function deleteFecha(formData: FormData) {
   const supabase = await createClient()
   const {
