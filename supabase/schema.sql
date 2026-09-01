@@ -42,14 +42,16 @@ CREATE TABLE categoria (
 );
 
 -- tipo_carrera  ("Final", "Serie", "Pole", "Clasificación", etc.)
--- otorga_puntos=false modela sesiones que existen pero no puntúan.
+-- Vive al nivel del campeonato: un mismo tipo comparte su tabla de puntos
+-- en todas las divisionales. otorga_puntos=false modela sesiones que
+-- existen pero no puntúan (ej. Clasificación).
 CREATE TABLE tipo_carrera (
-  id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at    timestamptz NOT NULL    DEFAULT now(),
-  categoria_id  uuid        NOT NULL    REFERENCES categoria(id)    ON DELETE CASCADE,
-  nombre        text        NOT NULL,
-  otorga_puntos bool        NOT NULL    DEFAULT true,
-  orden         int         NOT NULL    DEFAULT 0
+  id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at      timestamptz NOT NULL    DEFAULT now(),
+  campeonato_id   uuid        NOT NULL    REFERENCES campeonato(id)  ON DELETE CASCADE,
+  nombre          text        NOT NULL,
+  otorga_puntos   bool        NOT NULL    DEFAULT true,
+  orden           int         NOT NULL    DEFAULT 0
 );
 
 -- punto_por_posicion  (tabla posición → puntos por tipo de carrera)
@@ -103,12 +105,14 @@ CREATE TABLE fecha (
   publicada      bool        NOT NULL    DEFAULT false
 );
 
--- sesion  (instancia de un tipo_carrera dentro de una fecha)
+-- sesion  (instancia de un tipo_carrera dentro de una fecha, para una categoría)
+-- categoria_id es explícito porque tipo_carrera ya no cuelga de categoria.
 -- multiplicador=2 en fechas especiales (decisión D10 del Blueprint).
 CREATE TABLE sesion (
   id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at      timestamptz NOT NULL    DEFAULT now(),
   fecha_id        uuid        NOT NULL    REFERENCES fecha(id)        ON DELETE CASCADE,
+  categoria_id    uuid        NOT NULL    REFERENCES categoria(id)    ON DELETE RESTRICT,
   tipo_carrera_id uuid        NOT NULL    REFERENCES tipo_carrera(id) ON DELETE RESTRICT,
   multiplicador   numeric     NOT NULL    DEFAULT 1,
   planilla_url    text,
@@ -211,10 +215,11 @@ SELECT
     0
   )               AS total_puntos
 FROM            piloto              p
-LEFT JOIN       resultado           r   ON  r.piloto_id       = p.id
-LEFT JOIN       sesion              s   ON  s.id              = r.sesion_id
-LEFT JOIN       fecha               f   ON  f.id              = s.fecha_id
-LEFT JOIN       tipo_carrera        tc  ON  tc.id             = s.tipo_carrera_id
+LEFT JOIN       resultado           r   ON  r.piloto_id        = p.id
+LEFT JOIN       sesion              s   ON  s.id               = r.sesion_id
+                                        AND s.categoria_id     = p.categoria_id
+LEFT JOIN       fecha               f   ON  f.id               = s.fecha_id
+LEFT JOIN       tipo_carrera        tc  ON  tc.id              = s.tipo_carrera_id
 LEFT JOIN       punto_por_posicion  pp  ON  pp.tipo_carrera_id = s.tipo_carrera_id
                                         AND pp.posicion        = r.posicion
 GROUP BY p.id, p.campeonato_id, p.categoria_id, p.nombre, p.apellido, p.numero

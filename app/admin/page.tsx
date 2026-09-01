@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function AdminPage() {
@@ -16,9 +17,17 @@ export default async function AdminPage() {
         <span className="font-medium text-gray-900">{user?.email}</span>
       </div>
 
-      <p className="mt-10 text-sm text-gray-400">
-        Los módulos del panel se construyen en los próximos pasos del MVP.
-      </p>
+      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/admin/campeonatos"
+          className="rounded-lg bg-white px-5 py-4 ring-1 ring-gray-200 hover:ring-blue-400 transition-all"
+        >
+          <p className="font-semibold text-gray-900">Campeonatos</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Campeonatos, categorías, tipos de carrera y esquemas de puntaje
+          </p>
+        </Link>
+      </div>
     </div>
   )
 }
