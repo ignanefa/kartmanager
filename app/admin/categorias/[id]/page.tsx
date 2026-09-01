@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateCategoria } from '../actions'
 import { createPiloto, deletePiloto } from '@/app/admin/pilotos/actions'
+import ConfirmDelete from '@/components/ConfirmDelete'
 
 export default async function CategoriaDetailPage({
   params,
@@ -123,16 +124,12 @@ export default async function CategoriaDetailPage({
                         >
                           Editar
                         </Link>
-                        <form action={deletePiloto}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <input type="hidden" name="categoriaId" value={id} />
-                          <button
-                            type="submit"
-                            className="text-sm text-red-400 hover:text-red-600 transition-colors"
-                          >
-                            Eliminar
-                          </button>
-                        </form>
+                        <ConfirmDelete
+                          action={deletePiloto}
+                          fields={[{ name: 'id', value: p.id }, { name: 'categoriaId', value: id }]}
+                          message={`¿Eliminar a ${p.nombre} ${p.apellido}?`}
+                          className="text-sm text-red-400 hover:text-red-600 transition-colors"
+                        />
                       </div>
                     </td>
                   </tr>
