@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { logout } from './actions'
@@ -22,7 +23,9 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <span className="font-semibold text-gray-900">KartManager · Admin</span>
+          <Link href="/admin" className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+            KartManager · Admin
+          </Link>
           <form action={logout}>
             <button
               type="submit"

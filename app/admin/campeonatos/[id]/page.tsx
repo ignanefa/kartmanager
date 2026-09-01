@@ -56,10 +56,16 @@ export default async function CampeonatoDetailPage({
           <h1 className="text-2xl font-bold text-gray-900">{campeonato.nombre}</h1>
           <div className="flex flex-wrap gap-2">
             <Link
+              href={`/campeonato/${campeonato.id}`}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Ver portal →
+            </Link>
+            <Link
               href={`/admin/campeonatos/${campeonato.id}/clasificacion`}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              Ver clasificación
+              Clasificación
             </Link>
             <Link
               href={`/admin/campeonatos/${campeonato.id}/noticias`}
