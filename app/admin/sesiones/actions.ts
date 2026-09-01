@@ -98,6 +98,42 @@ export async function updateSesion(formData: FormData) {
   redirect(`/admin/sesiones/${id}`)
 }
 
+export async function moveSesion(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const direccion = formData.get('direccion') as 'up' | 'down'
+  const fechaId = formData.get('fechaId') as string
+
+  const { data: sesiones } = await supabase
+    .from('sesion')
+    .select('id, orden')
+    .eq('fecha_id', fechaId)
+    .order('orden')
+
+  if (!sesiones) { redirect(`/admin/fechas/${fechaId}`) }
+
+  const idx = sesiones.findIndex((s) => s.id === id)
+  const swapIdx = direccion === 'up' ? idx - 1 : idx + 1
+
+  if (swapIdx < 0 || swapIdx >= sesiones.length) {
+    redirect(`/admin/fechas/${fechaId}`)
+  }
+
+  const a = sesiones[idx]
+  const b = sesiones[swapIdx]
+
+  await Promise.all([
+    supabase.from('sesion').update({ orden: b.orden }).eq('id', a.id),
+    supabase.from('sesion').update({ orden: a.orden }).eq('id', b.id),
+  ])
+
+  revalidatePath(`/admin/fechas/${fechaId}`)
+  redirect(`/admin/fechas/${fechaId}`)
+}
+
 export async function deleteSesion(formData: FormData) {
   const supabase = await createClient()
   const {

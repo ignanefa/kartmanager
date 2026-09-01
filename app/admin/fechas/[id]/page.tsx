@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateFecha } from '../actions'
-import { createSesion, deleteSesion } from '@/app/admin/sesiones/actions'
+import { createSesion, deleteSesion, moveSesion } from '@/app/admin/sesiones/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
 
 function formatDate(d: string) {
@@ -181,9 +181,11 @@ export default async function FechaDetailPage({
           {(!sesiones || sesiones.length === 0) && (
             <p className="text-sm text-gray-400">Sin sesiones todavía. Agregá la primera abajo.</p>
           )}
-          {sesiones?.map((s) => {
+          {sesiones?.map((s, idx) => {
             const cat = s.categoria as { nombre: string }
             const tipo = s.tipo_carrera as { nombre: string }
+            const isFirst = idx === 0
+            const isLast = idx === (sesiones.length - 1)
             return (
               <div
                 key={s.id}
@@ -202,18 +204,46 @@ export default async function FechaDetailPage({
                     </span>
                   )}
                 </Link>
-                <div className="flex items-center gap-4 ml-4 shrink-0">
+                <div className="flex items-center gap-1 ml-4 shrink-0">
+                  <form action={moveSesion}>
+                    <input type="hidden" name="id" value={s.id} />
+                    <input type="hidden" name="fechaId" value={id} />
+                    <input type="hidden" name="direccion" value="up" />
+                    <button
+                      type="submit"
+                      disabled={isFirst}
+                      className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors"
+                      title="Mover arriba"
+                    >
+                      ↑
+                    </button>
+                  </form>
+                  <form action={moveSesion}>
+                    <input type="hidden" name="id" value={s.id} />
+                    <input type="hidden" name="fechaId" value={id} />
+                    <input type="hidden" name="direccion" value="down" />
+                    <button
+                      type="submit"
+                      disabled={isLast}
+                      className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors"
+                      title="Mover abajo"
+                    >
+                      ↓
+                    </button>
+                  </form>
                   <Link
                     href={`/admin/sesiones/${s.id}`}
-                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                    className="ml-3 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                   >
                     Resultados
                   </Link>
-                  <ConfirmDelete
-                    action={deleteSesion}
-                    fields={[{ name: 'id', value: s.id }, { name: 'fechaId', value: id }]}
-                    message={`¿Eliminar la sesión ${cat.nombre} · ${tipo.nombre}? Se borrarán todos los resultados cargados.`}
-                  />
+                  <div className="ml-1">
+                    <ConfirmDelete
+                      action={deleteSesion}
+                      fields={[{ name: 'id', value: s.id }, { name: 'fechaId', value: id }]}
+                      message={`¿Eliminar la sesión ${cat.nombre} · ${tipo.nombre}? Se borrarán todos los resultados cargados.`}
+                    />
+                  </div>
                 </div>
               </div>
             )
