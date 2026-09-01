@@ -1,9 +1,27 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateFecha } from '../actions'
 import { createSesion, deleteSesion, moveSesion } from '@/app/admin/sesiones/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('fecha')
+    .select('numero, campeonato:campeonato_id(nombre, anio)')
+    .eq('id', id)
+    .single()
+  if (!data) return { title: 'Fecha' }
+  const camp = data.campeonato as unknown as { nombre: string; anio: number }
+  return { title: `Fecha ${data.numero} · ${camp.nombre} ${camp.anio}` }
+}
 
 function formatDate(d: string) {
   const [y, m, day] = d.split('-')

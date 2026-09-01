@@ -1,8 +1,28 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateSesion } from '../actions'
 import ResultadosEditor from './ResultadosEditor'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('sesion')
+    .select('categoria:categoria_id(nombre), tipo_carrera:tipo_carrera_id(nombre), fecha:fecha_id(numero, campeonato:campeonato_id(nombre, anio))')
+    .eq('id', id)
+    .single()
+  if (!data) return { title: 'Sesión' }
+  const cat = data.categoria as unknown as { nombre: string }
+  const tipo = data.tipo_carrera as unknown as { nombre: string }
+  const fecha = data.fecha as unknown as { numero: number; campeonato: { nombre: string; anio: number } }
+  return { title: `${cat.nombre} · ${tipo.nombre} · Fecha ${fecha.numero} · ${fecha.campeonato.nombre} ${fecha.campeonato.anio}` }
+}
 
 export default async function SesionDetailPage({
   params,

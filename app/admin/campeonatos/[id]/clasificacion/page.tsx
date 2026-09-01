@@ -1,6 +1,19 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('campeonato').select('nombre, anio').eq('id', id).single()
+  if (!data) return { title: 'Clasificación' }
+  return { title: `Clasificación · ${data.nombre} ${data.anio}` }
+}
 
 export default async function ClasificacionPage({
   params,
@@ -38,11 +51,19 @@ export default async function ClasificacionPage({
         ← {campeonato.nombre}
       </Link>
 
-      <div className="mt-4">
-        <h1 className="text-2xl font-bold text-gray-900">Clasificación</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {campeonato.nombre} {campeonato.anio} · Solo suma fechas publicadas.
-        </p>
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Clasificación</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {campeonato.nombre} {campeonato.anio} · Solo suma fechas publicadas.
+          </p>
+        </div>
+        <a
+          href={`/admin/campeonatos/${id}/clasificacion/export`}
+          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Descargar CSV
+        </a>
       </div>
 
       {pilotosPorCategoria.length === 0 && (

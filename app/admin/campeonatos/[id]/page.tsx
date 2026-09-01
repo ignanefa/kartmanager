@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -6,6 +7,18 @@ import { createCategoria, deleteCategoria, moveCategoria } from '@/app/admin/cat
 import { createTipoCarrera, deleteTipoCarrera, moveTipoCarrera } from '@/app/admin/tipos-carrera/actions'
 import { createFecha, deleteFecha, toggleFechaPublicada } from '@/app/admin/fechas/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('campeonato').select('nombre, anio').eq('id', id).single()
+  if (!data) return { title: 'Campeonato' }
+  return { title: `${data.nombre} ${data.anio}` }
+}
 
 function formatDate(d: string) {
   const [y, m, day] = d.split('-')
