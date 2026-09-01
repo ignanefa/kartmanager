@@ -66,7 +66,15 @@ export default async function PreinscripcionesAdminPage({
       </Link>
 
       <div className="mt-4">
-        <h1 className="text-2xl font-bold text-gray-900">Preinscripciones</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">Preinscripciones</h1>
+          <a
+            href={`/admin/fechas/${id}/preinscripciones/export`}
+            className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Descargar CSV
+          </a>
+        </div>
         <p className="mt-1 text-sm text-gray-500">
           {fecha.circuito} · {campeonato.nombre}
         </p>
