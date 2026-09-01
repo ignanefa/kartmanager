@@ -64,6 +64,23 @@ export async function updateNoticia(formData: FormData) {
   redirect(`/admin/noticias/${id}?campeonatoId=${campeonatoId}`)
 }
 
+export async function toggleNoticiaPublicada(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const campeonatoId = formData.get('campeonatoId') as string
+  const publicada = formData.get('publicada') === 'on'
+
+  await supabase
+    .from('noticia')
+    .update({ publicada, fecha_pub: publicada ? new Date().toISOString() : null })
+    .eq('id', id)
+
+  revalidatePath(`/admin/campeonatos/${campeonatoId}/noticias`)
+}
+
 export async function deleteNoticia(formData: FormData) {
   const supabase = await createClient()
   const {

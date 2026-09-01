@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { createNoticia, deleteNoticia } from './actions'
+import { createNoticia, deleteNoticia, toggleNoticiaPublicada } from './actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
 
 export default async function NoticiasAdminPage({
@@ -48,14 +48,23 @@ export default async function NoticiasAdminPage({
             >
               {n.titulo}
             </Link>
-            <div className="flex items-center gap-4 ml-4 shrink-0">
-              <span
-                className={`text-xs rounded-full px-2 py-0.5 font-medium ${
-                  n.publicada ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                {n.publicada ? 'Publicada' : 'Borrador'}
-              </span>
+            <div className="flex items-center gap-3 ml-4 shrink-0">
+              <form action={toggleNoticiaPublicada}>
+                <input type="hidden" name="id" value={n.id} />
+                <input type="hidden" name="campeonatoId" value={id} />
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    name="publicada"
+                    type="checkbox"
+                    defaultChecked={n.publicada}
+                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                    onChange={(e) => (e.target.form as HTMLFormElement).requestSubmit()}
+                  />
+                  <span className={`text-xs font-medium ${n.publicada ? 'text-green-700' : 'text-gray-400'}`}>
+                    {n.publicada ? 'Publicada' : 'Borrador'}
+                  </span>
+                </label>
+              </form>
               <ConfirmDelete
                 action={deleteNoticia}
                 fields={[{ name: 'id', value: n.id }, { name: 'campeonatoId', value: id }]}
