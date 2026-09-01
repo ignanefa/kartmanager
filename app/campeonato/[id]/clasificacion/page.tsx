@@ -25,10 +25,20 @@ export default async function ClasificacionPublicPage({
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900">Clasificación general</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Acumula puntos de todas las fechas publicadas.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Clasificación general</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Acumula puntos de todas las fechas publicadas.
+          </p>
+        </div>
+        <a
+          href={`/campeonato/${id}/clasificacion/export`}
+          className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+        >
+          Descargar CSV
+        </a>
+      </div>
 
       <div className="mt-6 space-y-8">
         {pilotosPorCategoria.map(({ categoria, pilotos }) => (
