@@ -1,0 +1,118 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { createNoticia, deleteNoticia } from './actions'
+
+export default async function NoticiasAdminPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const [{ data: campeonato }, { data: noticias }] = await Promise.all([
+    supabase.from('campeonato').select('id, nombre').eq('id', id).single(),
+    supabase
+      .from('noticia')
+      .select('id, titulo, publicada, created_at')
+      .eq('campeonato_id', id)
+      .order('created_at', { ascending: false }),
+  ])
+
+  if (!campeonato) notFound()
+
+  return (
+    <div>
+      <Link href={`/admin/campeonatos/${id}`} className="text-sm text-gray-500 hover:text-gray-700">
+        ← {campeonato.nombre}
+      </Link>
+
+      <div className="mt-4">
+        <h1 className="text-2xl font-bold text-gray-900">Noticias</h1>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {(!noticias || noticias.length === 0) && (
+          <p className="text-sm text-gray-400">Sin noticias todavía. Creá la primera abajo.</p>
+        )}
+        {noticias?.map((n) => (
+          <div
+            key={n.id}
+            className="flex items-center justify-between rounded-lg bg-white px-4 py-3 ring-1 ring-gray-200"
+          >
+            <Link
+              href={`/admin/noticias/${n.id}?campeonatoId=${id}`}
+              className="flex-1 font-medium text-gray-900 hover:text-blue-600"
+            >
+              {n.titulo}
+            </Link>
+            <div className="flex items-center gap-4 ml-4 shrink-0">
+              <span
+                className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                  n.publicada ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {n.publicada ? 'Publicada' : 'Borrador'}
+              </span>
+              <form action={deleteNoticia}>
+                <input type="hidden" name="id" value={n.id} />
+                <input type="hidden" name="campeonatoId" value={id} />
+                <button type="submit" className="text-sm text-red-400 hover:text-red-600 transition-colors">
+                  Eliminar
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Crear noticia rápida */}
+      <form
+        action={createNoticia}
+        className="mt-6 rounded-lg bg-white px-4 py-4 ring-1 ring-gray-200 space-y-3"
+      >
+        <input type="hidden" name="campeonatoId" value={id} />
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Título *</label>
+          <input
+            name="titulo"
+            type="text"
+            required
+            placeholder="ej. Resultados Fecha 1"
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Contenido *</label>
+          <textarea
+            name="cuerpo"
+            required
+            rows={4}
+            placeholder="Escribí el contenido de la noticia..."
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <input
+              id="publicada_new"
+              name="publicada"
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="publicada_new" className="text-sm text-gray-700">
+              Publicar inmediatamente
+            </label>
+          </div>
+          <button
+            type="submit"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            Crear noticia
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}

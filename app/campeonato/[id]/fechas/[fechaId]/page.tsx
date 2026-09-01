@@ -21,10 +21,13 @@ type SesionRow = {
 
 export default async function FechaPublicPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string; fechaId: string }>
+  searchParams: Promise<{ inscripto?: string }>
 }) {
   const { id, fechaId } = await params
+  const { inscripto } = await searchParams
   const supabase = await createClient()
 
   const [{ data: fecha }, { data: sesiones }] = await Promise.all([
@@ -78,7 +81,21 @@ export default async function FechaPublicPage({
             Ver cronograma →
           </a>
         )}
+        <div className="mt-3">
+          <Link
+            href={`/campeonato/${id}/fechas/${fechaId}/preinscribirse`}
+            className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            Preinscribirse
+          </Link>
+        </div>
       </div>
+
+      {inscripto === '1' && (
+        <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 ring-1 ring-green-200">
+          ¡Preinscripción enviada! El organizador se pondrá en contacto para confirmar tu participación.
+        </div>
+      )}
 
       {sesionesTyped.length === 0 && (
         <p className="mt-6 text-sm text-gray-400">Todavía no hay resultados para esta fecha.</p>

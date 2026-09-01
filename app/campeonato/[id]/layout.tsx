@@ -31,7 +31,7 @@ export default async function CampeonatoPublicLayout({
               </p>
               <h1 className="text-xl font-bold text-gray-900">{campeonato.nombre}</h1>
             </div>
-            <nav className="flex gap-1">
+            <nav className="flex flex-wrap gap-1">
               <Link
                 href={`/campeonato/${id}`}
                 className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
@@ -43,6 +43,18 @@ export default async function CampeonatoPublicLayout({
                 className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
               >
                 Clasificación
+              </Link>
+              <Link
+                href={`/campeonato/${id}/noticias`}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              >
+                Noticias
+              </Link>
+              <Link
+                href={`/campeonato/${id}/costos`}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              >
+                Costos
               </Link>
             </nav>
           </div>

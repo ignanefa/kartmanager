@@ -60,10 +60,18 @@ export default async function FechaDetailPage({
 
       {/* Editar fecha */}
       <div className="mt-4">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Fecha {fecha.numero}
-          {fecha.nombre ? ` — ${fecha.nombre}` : ''}
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Fecha {fecha.numero}
+            {fecha.nombre ? ` — ${fecha.nombre}` : ''}
+          </h1>
+          <Link
+            href={`/admin/fechas/${id}/preinscripciones`}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Preinscripciones
+          </Link>
+        </div>
         <p className="mt-1 text-sm text-gray-500">
           {fecha.circuito} · {formatDate(fecha.fecha_desde)}
           {fecha.fecha_hasta ? ` al ${formatDate(fecha.fecha_hasta)}` : ''}

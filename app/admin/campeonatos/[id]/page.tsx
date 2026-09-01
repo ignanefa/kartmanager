@@ -54,12 +54,26 @@ export default async function CampeonatoDetailPage({
       <div className="mt-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900">{campeonato.nombre}</h1>
-          <Link
-            href={`/admin/campeonatos/${campeonato.id}/clasificacion`}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Ver clasificación
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/admin/campeonatos/${campeonato.id}/clasificacion`}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Ver clasificación
+            </Link>
+            <Link
+              href={`/admin/campeonatos/${campeonato.id}/noticias`}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Noticias
+            </Link>
+            <Link
+              href={`/admin/campeonatos/${campeonato.id}/costos`}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Costos
+            </Link>
+          </div>
         </div>
         <form
           action={updateCampeonato}
