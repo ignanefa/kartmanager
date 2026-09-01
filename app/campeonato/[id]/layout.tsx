@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import PublicNav from '@/components/PublicNav'
 
 export async function generateMetadata({
   params,
@@ -44,38 +44,13 @@ export default async function CampeonatoPublicLayout({
               </p>
               <h1 className="text-xl font-bold text-gray-900">{campeonato.nombre}</h1>
             </div>
-            <nav className="flex flex-wrap gap-1">
-              <Link
-                href={`/campeonato/${id}`}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                Fechas
-              </Link>
-              <Link
-                href={`/campeonato/${id}/clasificacion`}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                Clasificación
-              </Link>
-              <Link
-                href={`/campeonato/${id}/noticias`}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                Noticias
-              </Link>
-              <Link
-                href={`/campeonato/${id}/costos`}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                Costos
-              </Link>
-              <Link
-                href={`/campeonato/${id}/puntos`}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              >
-                Puntuación
-              </Link>
-            </nav>
+            <PublicNav items={[
+              { href: `/campeonato/${id}`, label: 'Fechas' },
+              { href: `/campeonato/${id}/clasificacion`, label: 'Clasificación' },
+              { href: `/campeonato/${id}/noticias`, label: 'Noticias' },
+              { href: `/campeonato/${id}/costos`, label: 'Costos' },
+              { href: `/campeonato/${id}/puntos`, label: 'Puntuación' },
+            ]} />
           </div>
         </div>
       </header>
