@@ -23,6 +23,7 @@ export default async function CampeonatoPublicPage({
     .order('numero')
 
   const today = new Date().toISOString().slice(0, 10)
+  const proximaIdx = (fechas ?? []).findIndex((f) => (f.fecha_hasta ?? f.fecha_desde) >= today)
 
   return (
     <div>
@@ -35,8 +36,9 @@ export default async function CampeonatoPublicPage({
       )}
 
       <div className="mt-4 space-y-3">
-        {fechas?.map((f) => {
+        {fechas?.map((f, idx) => {
           const isPast = (f.fecha_hasta ?? f.fecha_desde) < today
+          const isProxima = idx === proximaIdx
           return (
             <Link
               key={f.id}
@@ -44,7 +46,9 @@ export default async function CampeonatoPublicPage({
               className={`block rounded-lg px-5 py-4 ring-1 transition-all ${
                 isPast
                   ? 'bg-gray-50 ring-gray-200 hover:ring-gray-300 opacity-70'
-                  : 'bg-white ring-gray-200 hover:ring-blue-400'
+                  : isProxima
+                    ? 'bg-white ring-blue-300 hover:ring-blue-500 shadow-sm'
+                    : 'bg-white ring-gray-200 hover:ring-blue-400'
               }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -65,6 +69,11 @@ export default async function CampeonatoPublicPage({
                   {isPast && (
                     <span className="text-xs rounded-full bg-gray-100 text-gray-500 px-2 py-0.5 font-medium">
                       Finalizada
+                    </span>
+                  )}
+                  {isProxima && (
+                    <span className="text-xs rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 font-medium">
+                      Próxima
                     </span>
                   )}
                 </div>
