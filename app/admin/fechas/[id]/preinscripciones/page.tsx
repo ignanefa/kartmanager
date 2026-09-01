@@ -30,10 +30,13 @@ function formatFecha(ts: string) {
 
 export default async function PreinscripcionesAdminPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ estado?: string }>
 }) {
   const { id } = await params
+  const { estado: filtroEstado } = await searchParams
 
   const supabase = await createClient()
 
@@ -47,14 +50,17 @@ export default async function PreinscripcionesAdminPage({
 
   const campeonato = fecha.campeonato as unknown as { id: string; nombre: string }
 
-  const { data: preinscripciones } = await supabase
-    .from('preinscripcion')
-    .select('*')
-    .eq('fecha_id', id)
-    .order('created_at', { ascending: false })
+  const estadoFiltro = filtroEstado && ESTADOS.includes(filtroEstado as Estado) ? filtroEstado as Estado : null
 
-  const total = preinscripciones?.length ?? 0
-  const confirmados = preinscripciones?.filter((p) => p.estado === 'confirmado').length ?? 0
+  const [{ data: todas }, { data: preinscripciones }] = await Promise.all([
+    supabase.from('preinscripcion').select('estado').eq('fecha_id', id),
+    estadoFiltro
+      ? supabase.from('preinscripcion').select('*').eq('fecha_id', id).eq('estado', estadoFiltro).order('created_at', { ascending: false })
+      : supabase.from('preinscripcion').select('*').eq('fecha_id', id).order('created_at', { ascending: false }),
+  ])
+
+  const total = todas?.length ?? 0
+  const confirmados = todas?.filter((p) => p.estado === 'confirmado').length ?? 0
 
   return (
     <div>
@@ -82,13 +88,39 @@ export default async function PreinscripcionesAdminPage({
           <span className="font-medium text-gray-900">{total} total</span>
           <span className="text-green-700 font-medium">{confirmados} confirmados</span>
           <span className="text-amber-700 font-medium">
-            {preinscripciones?.filter((p) => p.estado === 'nuevo').length ?? 0} nuevos
+            {todas?.filter((p) => p.estado === 'nuevo').length ?? 0} nuevos
           </span>
         </div>
       </div>
 
+      {/* Filtro por estado */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {([null, ...ESTADOS] as (Estado | null)[]).map((e) => {
+          const label = e === null ? 'Todos' : estadoLabel[e]
+          const href = e === null
+            ? `/admin/fechas/${id}/preinscripciones`
+            : `/admin/fechas/${id}/preinscripciones?estado=${e}`
+          const isActive = estadoFiltro === e
+          return (
+            <Link
+              key={e ?? 'todos'}
+              href={href}
+              className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {label}
+            </Link>
+          )
+        })}
+      </div>
+
       {(!preinscripciones || preinscripciones.length === 0) && (
-        <p className="mt-6 text-sm text-gray-400">Todavía no hay preinscripciones para esta fecha.</p>
+        <p className="mt-6 text-sm text-gray-400">
+          {estadoFiltro ? `No hay preinscripciones con estado "${estadoLabel[estadoFiltro]}".` : 'Todavía no hay preinscripciones para esta fecha.'}
+        </p>
       )}
 
       <div className="mt-4 space-y-3">
