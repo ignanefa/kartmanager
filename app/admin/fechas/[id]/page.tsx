@@ -32,7 +32,7 @@ export default async function FechaDetailPage({
   const [{ data: sesiones }, { data: categorias }, { data: tipos }, { data: preinscripciones }] = await Promise.all([
     supabase
       .from('sesion')
-      .select('*, categoria:categoria_id(nombre), tipo_carrera:tipo_carrera_id(nombre)')
+      .select('*, categoria:categoria_id(nombre, piloto(count)), tipo_carrera:tipo_carrera_id(nombre), resultado(count)')
       .eq('fecha_id', id)
       .order('orden'),
     supabase
@@ -196,8 +196,10 @@ export default async function FechaDetailPage({
             <p className="text-sm text-gray-400">Sin sesiones todavía. Agregá la primera abajo.</p>
           )}
           {sesiones?.map((s, idx) => {
-            const cat = s.categoria as { nombre: string }
+            const cat = s.categoria as { nombre: string; piloto: { count: number }[] }
             const tipo = s.tipo_carrera as { nombre: string }
+            const resultadoCount = (s.resultado as unknown as { count: number }[])?.[0]?.count ?? 0
+            const pilotoCount = cat.piloto?.[0]?.count ?? 0
             const isFirst = idx === 0
             const isLast = idx === (sesiones.length - 1)
             return (
@@ -215,6 +217,17 @@ export default async function FechaDetailPage({
                   {s.multiplicador !== 1 && (
                     <span className="ml-2 text-xs rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 font-medium">
                       ×{s.multiplicador}
+                    </span>
+                  )}
+                  {pilotoCount > 0 && (
+                    <span className={`ml-2 text-xs rounded-full px-2 py-0.5 font-medium ${
+                      resultadoCount === 0
+                        ? 'bg-gray-100 text-gray-400'
+                        : resultadoCount >= pilotoCount
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {resultadoCount}/{pilotoCount}
                     </span>
                   )}
                 </Link>
