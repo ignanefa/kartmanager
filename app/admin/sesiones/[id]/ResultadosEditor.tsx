@@ -30,13 +30,20 @@ export default function ResultadosEditor({ sesionId, pilotos, resultadosIniciale
   )
 
   const [filas, setFilas] = useState<FilaResultado[]>(
-    pilotos.map((p) => ({
-      piloto_id: p.id,
-      nombre: p.nombre,
-      apellido: p.apellido,
-      numero: p.numero,
-      posicion: posicionPorPiloto[p.id] ?? null,
-    }))
+    pilotos
+      .map((p) => ({
+        piloto_id: p.id,
+        nombre: p.nombre,
+        apellido: p.apellido,
+        numero: p.numero,
+        posicion: posicionPorPiloto[p.id] ?? null,
+      }))
+      .sort((a, b) => {
+        if (a.posicion === null && b.posicion === null) return a.numero - b.numero
+        if (a.posicion === null) return 1
+        if (b.posicion === null) return -1
+        return a.posicion - b.posicion
+      })
   )
 
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
