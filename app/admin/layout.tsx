@@ -1,7 +1,12 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { logout } from './actions'
+
+export const metadata: Metadata = {
+  title: { template: '%s · Admin', default: 'Admin · KartManager' },
+}
 
 export default async function AdminLayout({
   children,

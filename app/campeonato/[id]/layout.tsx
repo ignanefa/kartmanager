@@ -1,6 +1,19 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('campeonato').select('nombre, anio').eq('id', id).single()
+  if (!data) return { title: 'Campeonato' }
+  return { title: { template: `%s · ${data.nombre} ${data.anio}`, default: `${data.nombre} ${data.anio}` } }
+}
 
 export default async function CampeonatoPublicLayout({
   children,
