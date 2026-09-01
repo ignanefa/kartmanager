@@ -55,6 +55,39 @@ export async function updateCategoria(formData: FormData) {
   redirect(`/admin/categorias/${id}`)
 }
 
+export async function moveCategoria(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const campeonatoId = formData.get('campeonatoId') as string
+  const direccion = formData.get('direccion') as 'up' | 'down'
+
+  const { data: cats } = await supabase
+    .from('categoria')
+    .select('id, orden')
+    .eq('campeonato_id', campeonatoId)
+    .order('orden')
+
+  if (!cats) { redirect(`/admin/campeonatos/${campeonatoId}`) }
+
+  const idx = cats.findIndex((c) => c.id === id)
+  const swapIdx = direccion === 'up' ? idx - 1 : idx + 1
+
+  if (swapIdx < 0 || swapIdx >= cats.length) {
+    redirect(`/admin/campeonatos/${campeonatoId}`)
+  }
+
+  await Promise.all([
+    supabase.from('categoria').update({ orden: cats[swapIdx].orden }).eq('id', cats[idx].id),
+    supabase.from('categoria').update({ orden: cats[idx].orden }).eq('id', cats[swapIdx].id),
+  ])
+
+  revalidatePath(`/admin/campeonatos/${campeonatoId}`)
+  redirect(`/admin/campeonatos/${campeonatoId}`)
+}
+
 export async function deleteCategoria(formData: FormData) {
   const supabase = await createClient()
   const {

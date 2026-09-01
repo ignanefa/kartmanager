@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateCampeonato } from '../actions'
-import { createCategoria, deleteCategoria } from '@/app/admin/categorias/actions'
-import { createTipoCarrera, deleteTipoCarrera } from '@/app/admin/tipos-carrera/actions'
+import { createCategoria, deleteCategoria, moveCategoria } from '@/app/admin/categorias/actions'
+import { createTipoCarrera, deleteTipoCarrera, moveTipoCarrera } from '@/app/admin/tipos-carrera/actions'
 import { createFecha, deleteFecha, toggleFechaPublicada } from '@/app/admin/fechas/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
 
@@ -158,26 +158,44 @@ export default async function CampeonatoDetailPage({
           {(!categorias || categorias.length === 0) && (
             <p className="text-sm text-gray-400">Sin divisionales todavía. Agregá la primera abajo.</p>
           )}
-          {categorias?.map((cat) => (
+          {categorias?.map((cat, idx) => {
+            const isFirst = idx === 0
+            const isLast = idx === (categorias.length - 1)
+            return (
             <div
               key={cat.id}
               className="flex items-center justify-between rounded-lg bg-white px-4 py-3 ring-1 ring-gray-200"
             >
               <Link
                 href={`/admin/categorias/${cat.id}`}
-                className="font-medium text-gray-900 hover:text-blue-600"
+                className="flex-1 font-medium text-gray-900 hover:text-blue-600"
               >
                 {cat.nombre}
               </Link>
-              <div className="flex items-center gap-4">
-                <ConfirmDelete
-                  action={deleteCategoria}
-                  fields={[{ name: 'id', value: cat.id }, { name: 'campeonatoId', value: campeonato.id }]}
-                  message={`¿Eliminar la divisional "${cat.nombre}"? Se eliminarán también sus pilotos si no tienen resultados.`}
-                />
+              <div className="flex items-center gap-1 ml-4 shrink-0">
+                <form action={moveCategoria}>
+                  <input type="hidden" name="id" value={cat.id} />
+                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
+                  <input type="hidden" name="direccion" value="up" />
+                  <button type="submit" disabled={isFirst} className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors" title="Mover arriba">↑</button>
+                </form>
+                <form action={moveCategoria}>
+                  <input type="hidden" name="id" value={cat.id} />
+                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
+                  <input type="hidden" name="direccion" value="down" />
+                  <button type="submit" disabled={isLast} className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors" title="Mover abajo">↓</button>
+                </form>
+                <div className="ml-2">
+                  <ConfirmDelete
+                    action={deleteCategoria}
+                    fields={[{ name: 'id', value: cat.id }, { name: 'campeonatoId', value: campeonato.id }]}
+                    message={`¿Eliminar la divisional "${cat.nombre}"? Se eliminarán también sus pilotos si no tienen resultados.`}
+                  />
+                </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         <form
@@ -215,20 +233,35 @@ export default async function CampeonatoDetailPage({
           {(!tipos || tipos.length === 0) && (
             <p className="text-sm text-gray-400">Sin tipos de carrera todavía. Agregá el primero abajo.</p>
           )}
-          {tipos?.map((tipo) => (
+          {tipos?.map((tipo, idx) => {
+            const isFirst = idx === 0
+            const isLast = idx === (tipos.length - 1)
+            return (
             <div
               key={tipo.id}
               className="flex items-center justify-between rounded-lg bg-white px-4 py-3 ring-1 ring-gray-200"
             >
               <Link
                 href={`/admin/tipos-carrera/${tipo.id}`}
-                className="font-medium text-gray-900 hover:text-blue-600"
+                className="flex-1 font-medium text-gray-900 hover:text-blue-600"
               >
                 {tipo.nombre}
               </Link>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1 ml-4 shrink-0">
+                <form action={moveTipoCarrera}>
+                  <input type="hidden" name="id" value={tipo.id} />
+                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
+                  <input type="hidden" name="direccion" value="up" />
+                  <button type="submit" disabled={isFirst} className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors" title="Mover arriba">↑</button>
+                </form>
+                <form action={moveTipoCarrera}>
+                  <input type="hidden" name="id" value={tipo.id} />
+                  <input type="hidden" name="campeonatoId" value={campeonato.id} />
+                  <input type="hidden" name="direccion" value="down" />
+                  <button type="submit" disabled={isLast} className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-default transition-colors" title="Mover abajo">↓</button>
+                </form>
                 <span
-                  className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                  className={`ml-2 text-xs rounded-full px-2 py-0.5 font-medium ${
                     tipo.otorga_puntos ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
                   }`}
                 >
@@ -241,7 +274,8 @@ export default async function CampeonatoDetailPage({
                 />
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         <form

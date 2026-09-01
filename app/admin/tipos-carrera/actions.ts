@@ -58,6 +58,39 @@ export async function updateTipoCarrera(formData: FormData) {
   redirect(`/admin/tipos-carrera/${id}`)
 }
 
+export async function moveTipoCarrera(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const campeonatoId = formData.get('campeonatoId') as string
+  const direccion = formData.get('direccion') as 'up' | 'down'
+
+  const { data: tipos } = await supabase
+    .from('tipo_carrera')
+    .select('id, orden')
+    .eq('campeonato_id', campeonatoId)
+    .order('orden')
+
+  if (!tipos) { redirect(`/admin/campeonatos/${campeonatoId}`) }
+
+  const idx = tipos.findIndex((t) => t.id === id)
+  const swapIdx = direccion === 'up' ? idx - 1 : idx + 1
+
+  if (swapIdx < 0 || swapIdx >= tipos.length) {
+    redirect(`/admin/campeonatos/${campeonatoId}`)
+  }
+
+  await Promise.all([
+    supabase.from('tipo_carrera').update({ orden: tipos[swapIdx].orden }).eq('id', tipos[idx].id),
+    supabase.from('tipo_carrera').update({ orden: tipos[idx].orden }).eq('id', tipos[swapIdx].id),
+  ])
+
+  revalidatePath(`/admin/campeonatos/${campeonatoId}`)
+  redirect(`/admin/campeonatos/${campeonatoId}`)
+}
+
 export async function deleteTipoCarrera(formData: FormData) {
   const supabase = await createClient()
   const {
