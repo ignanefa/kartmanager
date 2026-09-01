@@ -112,23 +112,24 @@ export async function moveSesion(formData: FormData) {
     .select('id, orden')
     .eq('fecha_id', fechaId)
     .order('orden')
+    .order('created_at')
 
   if (!sesiones) { redirect(`/admin/fechas/${fechaId}`) }
 
-  const idx = sesiones.findIndex((s) => s.id === id)
+  const normalized = sesiones.map((s, i) => ({ id: s.id, orden: i }))
+
+  const idx = normalized.findIndex((s) => s.id === id)
   const swapIdx = direccion === 'up' ? idx - 1 : idx + 1
 
-  if (swapIdx < 0 || swapIdx >= sesiones.length) {
+  if (swapIdx < 0 || swapIdx >= normalized.length) {
     redirect(`/admin/fechas/${fechaId}`)
   }
 
-  const a = sesiones[idx]
-  const b = sesiones[swapIdx]
+  ;[normalized[idx].orden, normalized[swapIdx].orden] = [normalized[swapIdx].orden, normalized[idx].orden]
 
-  await Promise.all([
-    supabase.from('sesion').update({ orden: b.orden }).eq('id', a.id),
-    supabase.from('sesion').update({ orden: a.orden }).eq('id', b.id),
-  ])
+  await Promise.all(
+    normalized.map((s) => supabase.from('sesion').update({ orden: s.orden }).eq('id', s.id))
+  )
 
   revalidatePath(`/admin/fechas/${fechaId}`)
   redirect(`/admin/fechas/${fechaId}`)

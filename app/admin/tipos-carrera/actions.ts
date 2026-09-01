@@ -72,20 +72,24 @@ export async function moveTipoCarrera(formData: FormData) {
     .select('id, orden')
     .eq('campeonato_id', campeonatoId)
     .order('orden')
+    .order('nombre')
 
   if (!tipos) { redirect(`/admin/campeonatos/${campeonatoId}`) }
 
-  const idx = tipos.findIndex((t) => t.id === id)
+  const normalized = tipos.map((t, i) => ({ id: t.id, orden: i }))
+
+  const idx = normalized.findIndex((t) => t.id === id)
   const swapIdx = direccion === 'up' ? idx - 1 : idx + 1
 
-  if (swapIdx < 0 || swapIdx >= tipos.length) {
+  if (swapIdx < 0 || swapIdx >= normalized.length) {
     redirect(`/admin/campeonatos/${campeonatoId}`)
   }
 
-  await Promise.all([
-    supabase.from('tipo_carrera').update({ orden: tipos[swapIdx].orden }).eq('id', tipos[idx].id),
-    supabase.from('tipo_carrera').update({ orden: tipos[idx].orden }).eq('id', tipos[swapIdx].id),
-  ])
+  ;[normalized[idx].orden, normalized[swapIdx].orden] = [normalized[swapIdx].orden, normalized[idx].orden]
+
+  await Promise.all(
+    normalized.map((t) => supabase.from('tipo_carrera').update({ orden: t.orden }).eq('id', t.id))
+  )
 
   revalidatePath(`/admin/campeonatos/${campeonatoId}`)
   redirect(`/admin/campeonatos/${campeonatoId}`)
