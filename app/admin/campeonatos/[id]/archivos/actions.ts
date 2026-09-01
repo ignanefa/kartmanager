@@ -29,6 +29,23 @@ export async function createArchivo(formData: FormData) {
   redirect(`/admin/campeonatos/${campeonatoId}/archivos`)
 }
 
+export async function updateArchivo(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const id = formData.get('id') as string
+  const campeonatoId = formData.get('campeonatoId') as string
+  const nombre = (formData.get('nombre') as string).trim()
+  const url = (formData.get('url') as string).trim()
+  const tipo = (formData.get('tipo') as string) || 'otro'
+
+  await supabase.from('archivo').update({ nombre, url, tipo }).eq('id', id)
+
+  revalidatePath(`/admin/campeonatos/${campeonatoId}/archivos`)
+  redirect(`/admin/campeonatos/${campeonatoId}/archivos`)
+}
+
 export async function updateArchivoPublicado(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
