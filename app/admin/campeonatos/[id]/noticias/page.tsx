@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createNoticia, deleteNoticia } from './actions'
+import ConfirmDelete from '@/components/ConfirmDelete'
 
 export default async function NoticiasAdminPage({
   params,
@@ -55,13 +56,11 @@ export default async function NoticiasAdminPage({
               >
                 {n.publicada ? 'Publicada' : 'Borrador'}
               </span>
-              <form action={deleteNoticia}>
-                <input type="hidden" name="id" value={n.id} />
-                <input type="hidden" name="campeonatoId" value={id} />
-                <button type="submit" className="text-sm text-red-400 hover:text-red-600 transition-colors">
-                  Eliminar
-                </button>
-              </form>
+              <ConfirmDelete
+                action={deleteNoticia}
+                fields={[{ name: 'id', value: n.id }, { name: 'campeonatoId', value: id }]}
+                message={`¿Eliminar la noticia "${n.titulo}"?`}
+              />
             </div>
           </div>
         ))}

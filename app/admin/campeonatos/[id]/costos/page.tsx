@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createCosto, deleteCosto } from './actions'
+import ConfirmDelete from '@/components/ConfirmDelete'
 
 function formatMonto(m: number | null) {
   if (m === null) return '—'
@@ -54,13 +55,11 @@ export default async function CostosAdminPage({
                   <td className="px-4 py-2.5 text-gray-700">{formatMonto(c.monto)}</td>
                   <td className="px-4 py-2.5 text-gray-500 hidden sm:table-cell">{c.detalle ?? '—'}</td>
                   <td className="px-4 py-2.5 text-right">
-                    <form action={deleteCosto}>
-                      <input type="hidden" name="id" value={c.id} />
-                      <input type="hidden" name="campeonatoId" value={id} />
-                      <button type="submit" className="text-sm text-red-400 hover:text-red-600 transition-colors">
-                        Eliminar
-                      </button>
-                    </form>
+                    <ConfirmDelete
+                      action={deleteCosto}
+                      fields={[{ name: 'id', value: c.id }, { name: 'campeonatoId', value: id }]}
+                      message={`¿Eliminar el costo "${c.concepto}"?`}
+                    />
                   </td>
                 </tr>
               ))}

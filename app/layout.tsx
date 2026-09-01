@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Karting SaaS",
-  description: "Sistema de gestión de categorías de automovilismo",
+  title: { template: '%s · KartManager', default: 'KartManager' },
+  description: "Sistema de gestión de campeonatos de karting",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
