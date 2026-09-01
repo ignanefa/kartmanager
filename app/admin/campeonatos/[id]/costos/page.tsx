@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { createCosto, deleteCosto } from './actions'
+import { createCosto, deleteCosto, updateCosto } from './actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
 
 function formatMonto(m: number | null) {
@@ -11,10 +11,13 @@ function formatMonto(m: number | null) {
 
 export default async function CostosAdminPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ edit?: string }>
 }) {
   const { id } = await params
+  const { edit: editId } = await searchParams
   const supabase = await createClient()
 
   const [{ data: campeonato }, { data: costos }] = await Promise.all([
@@ -49,20 +52,73 @@ export default async function CostosAdminPage({
               </tr>
             </thead>
             <tbody>
-              {costos.map((c) => (
-                <tr key={c.id} className="border-t border-gray-100">
-                  <td className="px-4 py-2.5 font-medium text-gray-900">{c.concepto}</td>
-                  <td className="px-4 py-2.5 text-gray-700">{formatMonto(c.monto)}</td>
-                  <td className="px-4 py-2.5 text-gray-500 hidden sm:table-cell">{c.detalle ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-right">
-                    <ConfirmDelete
-                      action={deleteCosto}
-                      fields={[{ name: 'id', value: c.id }, { name: 'campeonatoId', value: id }]}
-                      message={`¿Eliminar el costo "${c.concepto}"?`}
-                    />
-                  </td>
-                </tr>
-              ))}
+              {costos.map((c) => {
+                const isEditing = editId === c.id
+                return (
+                  <tr key={c.id} className="border-t border-gray-100">
+                    {isEditing ? (
+                      <>
+                        <td className="px-3 py-2" colSpan={4}>
+                          <form action={updateCosto} className="flex flex-wrap gap-2 items-end">
+                            <input type="hidden" name="id" value={c.id} />
+                            <input type="hidden" name="campeonatoId" value={id} />
+                            <input
+                              name="concepto"
+                              type="text"
+                              required
+                              defaultValue={c.concepto}
+                              className="flex-1 min-w-32 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <input
+                              name="monto"
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              defaultValue={c.monto ?? ''}
+                              placeholder="monto"
+                              className="w-28 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <input
+                              name="detalle"
+                              type="text"
+                              defaultValue={c.detalle ?? ''}
+                              placeholder="detalle"
+                              className="flex-1 min-w-32 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <button type="submit" className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 transition-colors">
+                              Guardar
+                            </button>
+                            <Link href={`/admin/campeonatos/${id}/costos`} className="text-xs text-gray-500 hover:text-gray-700">
+                              Cancelar
+                            </Link>
+                          </form>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-4 py-2.5 font-medium text-gray-900">{c.concepto}</td>
+                        <td className="px-4 py-2.5 text-gray-700">{formatMonto(c.monto)}</td>
+                        <td className="px-4 py-2.5 text-gray-500 hidden sm:table-cell">{c.detalle ?? '—'}</td>
+                        <td className="px-4 py-2.5 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <Link
+                              href={`/admin/campeonatos/${id}/costos?edit=${c.id}`}
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              Editar
+                            </Link>
+                            <ConfirmDelete
+                              action={deleteCosto}
+                              fields={[{ name: 'id', value: c.id }, { name: 'campeonatoId', value: id }]}
+                              message={`¿Eliminar el costo "${c.concepto}"?`}
+                            />
+                          </div>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}
