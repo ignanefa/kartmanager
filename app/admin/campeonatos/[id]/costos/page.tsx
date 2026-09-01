@@ -1,8 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createCosto, deleteCosto, updateCosto } from './actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('campeonato').select('nombre, anio').eq('id', id).single()
+  if (!data) return { title: 'Costos' }
+  return { title: `Costos · ${data.nombre} ${data.anio}` }
+}
 
 function formatMonto(m: number | null) {
   if (m === null) return '—'

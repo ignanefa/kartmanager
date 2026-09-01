@@ -262,9 +262,12 @@ export default async function CampeonatoDetailPage({
             >
               <Link
                 href={`/admin/tipos-carrera/${tipo.id}`}
-                className="flex-1 font-medium text-gray-900 hover:text-blue-600"
+                className="flex-1 flex items-center gap-2 font-medium text-gray-900 hover:text-blue-600"
               >
                 {tipo.nombre}
+                {!tipo.otorga_puntos && (
+                  <span className="text-xs font-normal text-gray-400">(sin puntos)</span>
+                )}
               </Link>
               <div className="flex items-center gap-1 ml-4 shrink-0">
                 <form action={moveTipoCarrera}>

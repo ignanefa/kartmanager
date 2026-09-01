@@ -1,8 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createArchivo, deleteArchivo, updateArchivo, updateArchivoPublicado } from './actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase.from('campeonato').select('nombre, anio').eq('id', id).single()
+  if (!data) return { title: 'Documentos' }
+  return { title: `Documentos · ${data.nombre} ${data.anio}` }
+}
 
 const TIPO_LABEL: Record<string, string> = {
   reglamento: 'Reglamento',
