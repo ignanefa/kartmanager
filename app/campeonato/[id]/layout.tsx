@@ -50,6 +50,7 @@ export default async function CampeonatoPublicLayout({
               { href: `/campeonato/${id}/noticias`, label: 'Noticias' },
               { href: `/campeonato/${id}/costos`, label: 'Costos' },
               { href: `/campeonato/${id}/puntos`, label: 'Puntuación' },
+              { href: `/campeonato/${id}/documentos`, label: 'Documentos' },
             ]} />
           </div>
         </div>
