@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updatePiloto, deletePiloto } from '../actions'
+import ConfirmDelete from '@/components/ConfirmDelete'
 
 export default async function PilotoDetailPage({
   params,
@@ -138,16 +139,13 @@ export default async function PilotoDetailPage({
         </form>
 
         <div className="mt-6">
-          <form action={deletePiloto}>
-            <input type="hidden" name="id" value={piloto.id} />
-            <input type="hidden" name="categoriaId" value={categoria.id} />
-            <button
-              type="submit"
-              className="text-sm text-red-500 hover:text-red-700 transition-colors"
-            >
-              Eliminar piloto
-            </button>
-          </form>
+          <ConfirmDelete
+            action={deletePiloto}
+            fields={[{ name: 'id', value: piloto.id }, { name: 'categoriaId', value: categoria.id }]}
+            message={`¿Eliminar a ${piloto.nombre} ${piloto.apellido}? Esta acción no se puede deshacer.`}
+            label="Eliminar piloto"
+            className="text-sm text-red-500 hover:text-red-700 transition-colors"
+          />
         </div>
       </div>
     </div>
