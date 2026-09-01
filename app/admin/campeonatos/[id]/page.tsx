@@ -55,6 +55,12 @@ export default async function CampeonatoDetailPage({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900">{campeonato.nombre}</h1>
           <div className="flex flex-wrap gap-2">
+            <a
+              href={`/admin/campeonatos/${campeonato.id}/pilotos/export`}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Pilotos CSV
+            </a>
             <Link
               href={`/campeonato/${campeonato.id}`}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
