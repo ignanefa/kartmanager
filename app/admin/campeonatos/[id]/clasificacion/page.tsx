@@ -67,9 +67,12 @@ export default async function ClasificacionPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {pilotos.map((p, i) => (
+                    {pilotos.map((p, i) => {
+                      const pos = i + 1
+                      const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : null
+                      return (
                       <tr key={p.piloto_id} className="border-t border-gray-100">
-                        <td className="px-4 py-2.5 text-gray-500">{i + 1}</td>
+                        <td className="px-4 py-2.5 text-gray-500">{medal ?? pos}</td>
                         <td className="px-4 py-2.5 font-medium text-gray-900">{p.numero}</td>
                         <td className="px-4 py-2.5 text-gray-900">
                           {p.nombre} {p.apellido}
@@ -78,7 +81,8 @@ export default async function ClasificacionPage({
                           {Number(p.total_puntos)}
                         </td>
                       </tr>
-                    ))}
+                      )
+                    })}
                   </tbody>
                 </table>
               )}

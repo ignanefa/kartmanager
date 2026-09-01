@@ -143,17 +143,22 @@ export default async function FechaPublicPage({
                       </tr>
                     </thead>
                     <tbody>
-                      {resultados.map((r) => (
-                        <tr key={r.posicion} className="border-t border-gray-100">
-                          <td className="px-4 py-2.5 text-gray-500">{r.posicion}</td>
-                          <td className="px-4 py-2.5 font-medium text-gray-900">
-                            {r.piloto.numero}
-                          </td>
-                          <td className="px-4 py-2.5 text-gray-900">
-                            {r.piloto.nombre} {r.piloto.apellido}
-                          </td>
-                        </tr>
-                      ))}
+                      {resultados.map((r) => {
+                        const medal = r.posicion === 1 ? '🥇' : r.posicion === 2 ? '🥈' : r.posicion === 3 ? '🥉' : null
+                        return (
+                          <tr key={r.posicion} className="border-t border-gray-100">
+                            <td className="px-4 py-2.5 text-gray-500">
+                              {medal ?? r.posicion}
+                            </td>
+                            <td className="px-4 py-2.5 font-medium text-gray-900">
+                              {r.piloto.numero}
+                            </td>
+                            <td className="px-4 py-2.5 text-gray-900">
+                              {r.piloto.nombre} {r.piloto.apellido}
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 )}
