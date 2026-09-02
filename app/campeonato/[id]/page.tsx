@@ -85,7 +85,7 @@ export default async function CampeonatoPublicPage({
               href={`/campeonato/${id}/fechas/${f.id}`}
               className={`block rounded-lg px-4 py-3.5 ring-1 transition-all ${
                 isPast
-                  ? 'bg-white ring-gray-150 hover:ring-gray-300 opacity-60'
+                  ? 'bg-white ring-gray-100 hover:ring-gray-200 opacity-60'
                   : 'bg-white ring-gray-200 hover:ring-gray-400'
               }`}
             >

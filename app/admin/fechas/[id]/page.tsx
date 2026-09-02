@@ -204,7 +204,14 @@ export default async function FechaDetailPage({
 
       {/* Sesiones */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900">Sesiones</h2>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-lg font-semibold text-gray-900">Sesiones</h2>
+          <span className="text-xs text-gray-400">
+            <span className="inline-block w-2 h-2 rounded-full bg-gray-200 mr-1" />sin resultados
+            <span className="inline-block w-2 h-2 rounded-full bg-blue-200 ml-3 mr-1" />parcial
+            <span className="inline-block w-2 h-2 rounded-full bg-green-200 ml-3 mr-1" />completa
+          </span>
+        </div>
         <p className="mt-1 text-sm text-gray-500">
           Cada sesión es una carrera (o clasificación) de una divisional en esta fecha.
         </p>
@@ -338,7 +345,9 @@ export default async function FechaDetailPage({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Multiplicador</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Multiplicador
+                </label>
                 <input
                   name="multiplicador"
                   type="number"
@@ -347,6 +356,7 @@ export default async function FechaDetailPage({
                   defaultValue={1}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
+                <p className="mt-1 text-xs text-gray-400">1 = normal · 2 = puntos dobles</p>
               </div>
             </div>
             <div>
