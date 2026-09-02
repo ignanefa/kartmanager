@@ -57,7 +57,6 @@ export async function updatePiloto(formData: FormData) {
   if (!user) redirect('/login')
 
   const id = formData.get('id') as string
-  const categoriaId = formData.get('categoriaId') as string
   const nombre = (formData.get('nombre') as string).trim()
   const apellido = (formData.get('apellido') as string).trim()
   const numero = parseInt(formData.get('numero') as string, 10)

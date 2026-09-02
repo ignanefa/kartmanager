@@ -43,7 +43,6 @@ export async function updateTipoCarrera(formData: FormData) {
   if (!user) redirect('/login')
 
   const id = formData.get('id') as string
-  const campeonatoId = formData.get('campeonatoId') as string
   const nombre = (formData.get('nombre') as string).trim()
   const otorga_puntos = formData.get('otorga_puntos') === 'on'
 

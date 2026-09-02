@@ -3,11 +3,6 @@ import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = { title: 'Documentos' }
 
-const TIPO_LABEL: Record<string, string> = {
-  reglamento: 'Reglamento',
-  otro: 'Documento',
-}
-
 export default async function DocumentosPublicPage({
   params,
 }: {

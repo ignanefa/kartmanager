@@ -1,7 +1,25 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updateEstadoPreinscripcion } from './actions'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('fecha')
+    .select('numero, nombre, campeonato:campeonato_id(nombre, anio)')
+    .eq('id', id)
+    .single()
+  if (!data) return { title: 'Preinscripciones' }
+  const camp = data.campeonato as unknown as { nombre: string; anio: number }
+  return { title: `Preinscripciones Fecha ${data.numero} · ${camp.nombre} ${camp.anio}` }
+}
 
 const ESTADOS = ['nuevo', 'contactado', 'confirmado'] as const
 type Estado = (typeof ESTADOS)[number]
@@ -131,9 +149,14 @@ export default async function PreinscripcionesAdminPage({
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="font-semibold text-gray-900">
-                  {p.nombre} {p.apellido}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-gray-900">
+                    {p.nombre} {p.apellido}
+                  </p>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${estadoClase[p.estado as Estado]}`}>
+                    {estadoLabel[p.estado as Estado]}
+                  </span>
+                </div>
                 <p className="text-sm text-gray-500">
                   {p.categoria_texto}
                   {p.numero_deseado ? ` · #${p.numero_deseado}` : ''}

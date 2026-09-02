@@ -68,7 +68,7 @@ export default function PuntosEditor({ tipoId, initialPuntos }: Props) {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-4 py-6 text-center text-sm text-gray-400">
-                  Sin filas. Usá "Agregar posición" para empezar.
+                  Sin filas. Usá &ldquo;Agregar posición&rdquo; para empezar.
                 </td>
               </tr>
             )}
