@@ -35,6 +35,11 @@ export default function PuntosEditor({ tipoId, initialPuntos }: Props) {
   }
 
   function guardar() {
+    const posiciones = rows.map((r) => r.posicion)
+    if (posiciones.length !== new Set(posiciones).size) {
+      setMensaje({ tipo: 'error', texto: 'Hay posiciones duplicadas en la tabla. Corregílas antes de guardar.' })
+      return
+    }
     startTransition(async () => {
       const result = await savePuntos(
         tipoId,

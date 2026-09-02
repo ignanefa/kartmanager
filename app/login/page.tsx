@@ -56,6 +56,9 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          KartManager · Admin
+        </p>
         <h1 className="mb-6 text-xl font-semibold text-gray-900">
           {modo === 'login' ? 'Ingresá al panel' : 'Recuperar contraseña'}
         </h1>

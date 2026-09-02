@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { updatePiloto, deletePiloto } from '../actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+import FlashMessage from '@/components/FlashMessage'
 
 export async function generateMetadata({
   params,
@@ -56,14 +57,10 @@ export default async function PilotoDetailPage({
       </Link>
 
       {errorParam === 'numero_duplicado' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          Ese número ya está usado en esta categoría. Elegí otro.
-        </div>
+        <FlashMessage type="error" message="Ese número ya está usado en esta categoría. Elegí otro." />
       )}
       {errorParam === 'email_invalido' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          El email ingresado no tiene un formato válido.
-        </div>
+        <FlashMessage type="error" message="El email ingresado no tiene un formato válido." />
       )}
 
       <div className="mt-4">
