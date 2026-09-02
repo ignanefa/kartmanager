@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import FlashMessage from '@/components/FlashMessage'
 
 function formatDate(d: string) {
   const [y, m, day] = d.split('-')
@@ -108,12 +109,11 @@ export default async function FechaPublicPage({
 
       {/* Banner: preinscripción enviada */}
       {inscripto === '1' && (
-        <div className="mt-4 rounded-xl bg-green-50 px-4 py-4 ring-1 ring-green-200">
-          <p className="text-sm font-semibold text-green-800">¡Preinscripción enviada!</p>
-          <p className="mt-0.5 text-sm text-green-700">
-            El organizador se pondrá en contacto para confirmar tu participación.
-          </p>
-        </div>
+        <FlashMessage
+          type="success"
+          paramKey="inscripto"
+          message="¡Preinscripción enviada! El organizador se pondrá en contacto para confirmar tu participación."
+        />
       )}
 
       {/* CTA preinscripción — solo si la fecha es futura y no vienen del formulario */}
