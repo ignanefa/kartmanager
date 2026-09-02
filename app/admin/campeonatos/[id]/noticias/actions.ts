@@ -13,7 +13,7 @@ export async function createNoticia(formData: FormData) {
 
   const campeonatoId = formData.get('campeonatoId') as string
   const titulo = (formData.get('titulo') as string).trim()
-  const cuerpo = (formData.get('cuerpo') as string).trim()
+  const cuerpo = ((formData.get('cuerpo') as string | null) ?? '').trim()
   const publicada = formData.get('publicada') === 'on'
 
   const { data, error } = await supabase
