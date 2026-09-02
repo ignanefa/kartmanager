@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+
+export const metadata: Metadata = { title: 'Documentos' }
 
 const TIPO_LABEL: Record<string, string> = {
   reglamento: 'Reglamento',

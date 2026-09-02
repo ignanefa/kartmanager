@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -17,6 +18,23 @@ type SesionRow = {
   categoria: { nombre: string }
   tipo_carrera: { nombre: string }
   resultado: ResultadoRow[]
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; fechaId: string }>
+}): Promise<Metadata> {
+  const { id, fechaId } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('fecha')
+    .select('numero, nombre')
+    .eq('id', fechaId)
+    .eq('campeonato_id', id)
+    .single()
+  if (!data) return { title: 'Fecha' }
+  return { title: `Fecha ${data.numero}${data.nombre ? ` — ${data.nombre}` : ''}` }
 }
 
 export default async function FechaPublicPage({
@@ -50,6 +68,8 @@ export default async function FechaPublicPage({
   if (!fecha) notFound()
 
   const sesionesTyped = (sesiones ?? []) as unknown as SesionRow[]
+  const today = new Date().toISOString().slice(0, 10)
+  const esFutura = (fecha.fecha_hasta ?? fecha.fecha_desde) >= today
 
   return (
     <div>
@@ -60,13 +80,16 @@ export default async function FechaPublicPage({
         ← Fechas
       </Link>
 
+      {/* Cabecera de la fecha */}
       <div className="mt-4">
         <h2 className="text-xl font-bold text-gray-900">
           Fecha {fecha.numero}
           {fecha.nombre ? ` — ${fecha.nombre}` : ''}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          {fecha.circuito} · {formatDate(fecha.fecha_desde)}
+          {fecha.circuito}
+          {' · '}
+          {formatDate(fecha.fecha_desde)}
           {fecha.fecha_hasta && fecha.fecha_hasta !== fecha.fecha_desde
             ? ` – ${formatDate(fecha.fecha_hasta)}`
             : ''}
@@ -81,92 +104,106 @@ export default async function FechaPublicPage({
             Ver cronograma →
           </a>
         )}
-        {new Date(fecha.fecha_hasta ?? fecha.fecha_desde) >= new Date(new Date().toISOString().slice(0, 10)) && (
-          <div className="mt-3">
-            <Link
-              href={`/campeonato/${id}/fechas/${fechaId}/preinscribirse`}
-              className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-            >
-              Preinscribirse
-            </Link>
-          </div>
-        )}
       </div>
 
+      {/* Banner: preinscripción enviada */}
       {inscripto === '1' && (
-        <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 ring-1 ring-green-200">
-          ¡Preinscripción enviada! El organizador se pondrá en contacto para confirmar tu participación.
+        <div className="mt-4 rounded-xl bg-green-50 px-4 py-4 ring-1 ring-green-200">
+          <p className="text-sm font-semibold text-green-800">¡Preinscripción enviada!</p>
+          <p className="mt-0.5 text-sm text-green-700">
+            El organizador se pondrá en contacto para confirmar tu participación.
+          </p>
         </div>
       )}
 
-      {sesionesTyped.length === 0 && (
-        <p className="mt-6 text-sm text-gray-400">Todavía no hay resultados para esta fecha.</p>
+      {/* CTA preinscripción — solo si la fecha es futura y no vienen del formulario */}
+      {esFutura && inscripto !== '1' && (
+        <div className="mt-5">
+          <Link
+            href={`/campeonato/${id}/fechas/${fechaId}/preinscribirse`}
+            className="inline-block rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-700 transition-colors"
+          >
+            Preinscribirse
+          </Link>
+        </div>
       )}
 
-      <div className="mt-6 space-y-6">
-        {sesionesTyped.map((s) => {
-          const resultados = [...s.resultado].sort((a, b) => a.posicion - b.posicion)
+      {/* Sesiones y resultados */}
+      {sesionesTyped.length === 0 ? (
+        <div className="mt-8 rounded-xl bg-white px-5 py-6 ring-1 ring-gray-200 text-center">
+          <p className="text-sm text-gray-400">Los resultados se publicarán al finalizar la fecha.</p>
+        </div>
+      ) : (
+        <div className="mt-8 space-y-6">
+          {sesionesTyped.map((s) => {
+            const resultados = [...s.resultado].sort((a, b) => a.posicion - b.posicion)
 
-          return (
-            <div key={s.id}>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-gray-900">
-                  {s.categoria.nombre} · {s.tipo_carrera.nombre}
-                </h3>
-                {s.multiplicador !== 1 && (
-                  <span className="text-xs rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 font-medium">
-                    ×{s.multiplicador}
-                  </span>
-                )}
-                {s.planilla_url && (
-                  <a
-                    href={s.planilla_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Planilla →
-                  </a>
-                )}
-              </div>
+            return (
+              <div key={s.id}>
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <h3 className="font-semibold text-gray-900">
+                    {s.categoria.nombre}
+                    <span className="mx-1.5 text-gray-300">·</span>
+                    {s.tipo_carrera.nombre}
+                  </h3>
+                  {s.multiplicador !== 1 && (
+                    <span className="text-xs rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 font-medium">
+                      ×{s.multiplicador}
+                    </span>
+                  )}
+                  {s.planilla_url && (
+                    <a
+                      href={s.planilla_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      Planilla →
+                    </a>
+                  )}
+                </div>
 
-              <div className="mt-2 overflow-x-auto rounded-lg bg-white ring-1 ring-gray-200">
-                {resultados.length === 0 ? (
-                  <p className="px-4 py-3 text-sm text-gray-400">Sin resultados cargados aún.</p>
-                ) : (
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left font-medium text-gray-600 w-12">Pos.</th>
-                        <th className="px-4 py-2 text-left font-medium text-gray-600 w-14">N°</th>
-                        <th className="px-4 py-2 text-left font-medium text-gray-600">Piloto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {resultados.map((r) => {
-                        const medal = r.posicion === 1 ? '🥇' : r.posicion === 2 ? '🥈' : r.posicion === 3 ? '🥉' : null
-                        return (
-                          <tr key={r.posicion} className="border-t border-gray-100">
-                            <td className="px-4 py-2.5 text-gray-500">
-                              {medal ?? r.posicion}
-                            </td>
-                            <td className="px-4 py-2.5 font-medium text-gray-900">
-                              {r.piloto.numero}
-                            </td>
-                            <td className="px-4 py-2.5 text-gray-900">
-                              {r.piloto.nombre} {r.piloto.apellido}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                )}
+                <div className="overflow-x-auto rounded-xl bg-white ring-1 ring-gray-200">
+                  {resultados.length === 0 ? (
+                    <p className="px-4 py-4 text-sm text-gray-400">Sin resultados cargados aún.</p>
+                  ) : (
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                          <th className="px-4 py-2.5 text-left font-medium text-gray-500 w-10">Pos.</th>
+                          <th className="px-4 py-2.5 text-left font-medium text-gray-500 w-12">N°</th>
+                          <th className="px-4 py-2.5 text-left font-medium text-gray-500">Piloto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resultados.map((r) => {
+                          const medal = r.posicion === 1 ? '🥇' : r.posicion === 2 ? '🥈' : r.posicion === 3 ? '🥉' : null
+                          return (
+                            <tr
+                              key={r.posicion}
+                              className={`border-t border-gray-100 ${r.posicion <= 3 ? 'font-medium' : ''}`}
+                            >
+                              <td className="px-4 py-2.5 text-gray-500 text-sm">
+                                {medal ?? r.posicion}
+                              </td>
+                              <td className="px-4 py-2.5 font-medium text-gray-900">
+                                {r.piloto.numero}
+                              </td>
+                              <td className="px-4 py-2.5 text-gray-900">
+                                {r.piloto.nombre} {r.piloto.apellido}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

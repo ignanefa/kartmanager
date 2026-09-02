@@ -22,35 +22,39 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-2xl px-6 py-16">
-        <h1 className="text-3xl font-bold text-gray-900">Karting SaaS</h1>
-        <p className="mt-2 text-gray-500">Sistema de gestión de campeonatos de karting</p>
+      <div className="mx-auto max-w-lg px-4 py-16 sm:px-6">
+        <div className="mb-8">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">KartManager</p>
+          <h1 className="mt-1 text-2xl font-bold text-gray-900">Campeonatos</h1>
+        </div>
 
-        <div className="mt-8 space-y-3">
-          {(!campeonatos || campeonatos.length === 0) && (
-            <p className="text-sm text-gray-400">
-              No hay campeonatos disponibles aún.{' '}
-              <Link href="/admin" className="text-blue-600 hover:underline">
-                Ir al panel de administración →
-              </Link>
-            </p>
-          )}
+        {(!campeonatos || campeonatos.length === 0) && (
+          <div className="rounded-xl bg-white px-5 py-8 ring-1 ring-gray-200 text-center">
+            <p className="text-sm text-gray-500">No hay campeonatos disponibles aún.</p>
+            <Link href="/admin" className="mt-3 inline-block text-sm text-blue-600 hover:underline">
+              Ir al panel de administración →
+            </Link>
+          </div>
+        )}
+
+        <div className="space-y-2">
           {campeonatos?.map((c) => (
             <Link
               key={c.id}
               href={`/campeonato/${c.id}`}
-              className="block rounded-lg bg-white px-5 py-4 ring-1 ring-gray-200 hover:ring-blue-400 transition-all"
+              className="flex items-center justify-between rounded-xl bg-white px-5 py-4 ring-1 ring-gray-200 hover:ring-gray-400 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-900">{c.nombre}</p>
-                  <p className="text-sm text-gray-500">{c.anio}</p>
-                </div>
+              <div>
+                <p className="font-semibold text-gray-900">{c.nombre}</p>
+                <p className="text-sm text-gray-400">{c.anio}</p>
+              </div>
+              <div className="flex items-center gap-2">
                 {c.activo && (
                   <span className="text-xs rounded-full bg-green-100 text-green-700 px-2 py-0.5 font-medium">
                     Activo
                   </span>
                 )}
+                <span className="text-gray-300">›</span>
               </div>
             </Link>
           ))}

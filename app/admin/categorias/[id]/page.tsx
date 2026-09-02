@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { updateCategoria } from '../actions'
 import { createPiloto, deletePiloto } from '@/app/admin/pilotos/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+import FlashMessage from '@/components/FlashMessage'
 
 export async function generateMetadata({
   params,
@@ -62,19 +63,13 @@ export default async function CategoriaDetailPage({
       </Link>
 
       {errorParam === 'numero_duplicado' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          Ese número ya está usado en esta categoría. Elegí otro.
-        </div>
+        <FlashMessage type="error" message="Ese número ya está usado en esta categoría. Elegí otro." />
       )}
       {errorParam === 'email_invalido' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          El email ingresado no tiene un formato válido.
-        </div>
+        <FlashMessage type="error" message="El email ingresado no tiene un formato válido." />
       )}
       {errorParam === 'piloto_tiene_resultados' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          No se puede eliminar el piloto: ya tiene resultados registrados.
-        </div>
+        <FlashMessage type="error" message="No se puede eliminar el piloto: ya tiene resultados registrados." />
       )}
 
       {/* Editar categoría */}

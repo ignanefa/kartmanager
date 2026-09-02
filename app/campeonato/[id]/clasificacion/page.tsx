@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+
+export const metadata: Metadata = { title: 'Clasificación' }
 
 export default async function ClasificacionPublicPage({
   params,

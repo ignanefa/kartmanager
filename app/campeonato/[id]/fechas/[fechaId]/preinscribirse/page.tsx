@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { preinscribirse } from './actions'
+import FlashMessage from '@/components/FlashMessage'
+import SubmitButton from '@/components/SubmitButton'
 
 export default async function PreinscribirsePublicPage({
   params,
@@ -33,6 +35,11 @@ export default async function PreinscribirsePublicPage({
 
   if (!fecha) notFound()
 
+  const errorMessages: Record<string, string> = {
+    email_invalido: 'El email ingresado no tiene un formato válido.',
+    error_general: 'Hubo un problema al enviar la preinscripción. Intentá de nuevo.',
+  }
+
   return (
     <div>
       <Link
@@ -52,15 +59,16 @@ export default async function PreinscribirsePublicPage({
         </p>
       </div>
 
-      {errorParam === 'email_invalido' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          El email ingresado no tiene un formato válido.
-        </div>
+      {errorParam && (
+        <FlashMessage
+          type="error"
+          message={errorMessages[errorParam] ?? 'Hubo un problema. Intentá de nuevo.'}
+        />
       )}
 
       <form
         action={preinscribirse}
-        className="mt-6 rounded-lg bg-white px-5 py-5 ring-1 ring-gray-200 space-y-4"
+        className="mt-6 rounded-xl bg-white px-5 py-5 ring-1 ring-gray-200 space-y-4"
       >
         <input type="hidden" name="fechaId" value={fechaId} />
         <input type="hidden" name="campeonatoId" value={id} />
@@ -72,8 +80,9 @@ export default async function PreinscribirsePublicPage({
               name="nombre"
               type="text"
               required
+              autoComplete="given-name"
               placeholder="ej. Juan"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div>
@@ -82,8 +91,9 @@ export default async function PreinscribirsePublicPage({
               name="apellido"
               type="text"
               required
+              autoComplete="family-name"
               placeholder="ej. García"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div>
@@ -92,8 +102,9 @@ export default async function PreinscribirsePublicPage({
               name="email"
               type="email"
               required
+              autoComplete="email"
               placeholder="tu@email.com"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div>
@@ -102,8 +113,9 @@ export default async function PreinscribirsePublicPage({
               name="telefono"
               type="tel"
               required
+              autoComplete="tel"
               placeholder="+54 11..."
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div>
@@ -112,7 +124,7 @@ export default async function PreinscribirsePublicPage({
               <select
                 name="categoria_texto"
                 required
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
               >
                 <option value="">Seleccioná tu categoría...</option>
                 {categorias.map((c) => (
@@ -127,47 +139,56 @@ export default async function PreinscribirsePublicPage({
                 type="text"
                 required
                 placeholder="ej. 150cc Standard"
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Número deseado</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Número deseado{' '}
+              <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
             <input
               name="numero_deseado"
               type="number"
               min={1}
-              placeholder="opcional"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="—"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Equipo</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Equipo{' '}
+              <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
             <input
               name="equipo"
               type="text"
-              placeholder="opcional"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="—"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Mensaje</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Mensaje{' '}
+              <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
             <textarea
               name="mensaje"
               rows={3}
-              placeholder="Consultas o información adicional (opcional)"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Consultas o información adicional"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
         </div>
 
         <div className="pt-1">
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+          <SubmitButton
+            pendingText="Enviando..."
+            className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
           >
             Enviar preinscripción
-          </button>
+          </SubmitButton>
           <p className="mt-2 text-xs text-gray-400 text-center">
             Tus datos son confidenciales y solo serán usados para confirmar tu participación.
           </p>

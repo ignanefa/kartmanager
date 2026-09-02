@@ -7,6 +7,7 @@ import { createCategoria, deleteCategoria, moveCategoria } from '@/app/admin/cat
 import { createTipoCarrera, deleteTipoCarrera, moveTipoCarrera } from '@/app/admin/tipos-carrera/actions'
 import { createFecha, deleteFecha, toggleFechaPublicada } from '@/app/admin/fechas/actions'
 import ConfirmDelete from '@/components/ConfirmDelete'
+import FlashMessage from '@/components/FlashMessage'
 
 export async function generateMetadata({
   params,
@@ -53,14 +54,10 @@ export default async function CampeonatoDetailPage({
       </Link>
 
       {errorParam === 'tiene_sesiones' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          No se puede eliminar la divisional: tiene pilotos o sesiones asociadas. Eliminá los datos relacionados primero.
-        </div>
+        <FlashMessage type="error" message="No se puede eliminar la divisional: tiene pilotos o sesiones asociadas. Eliminá los datos relacionados primero." />
       )}
       {errorParam === 'tipo_tiene_sesiones' && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-          No se puede eliminar el tipo de carrera: ya tiene sesiones registradas.
-        </div>
+        <FlashMessage type="error" message="No se puede eliminar el tipo de carrera: ya tiene sesiones registradas." />
       )}
 
       {/* Editar campeonato */}

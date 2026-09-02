@@ -26,22 +26,22 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <Link href="/admin" className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 sm:px-6 py-3">
+          <Link href="/admin" className="font-semibold text-gray-900 hover:text-gray-600 transition-colors text-sm">
             KartManager · Admin
           </Link>
           <form action={logout}>
             <button
               type="submit"
-              className="rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+              className="rounded-lg px-3 py-1.5 text-sm text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
             >
-              Cerrar sesión
+              Salir
             </button>
           </form>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-8">{children}</main>
     </div>
   )
 }

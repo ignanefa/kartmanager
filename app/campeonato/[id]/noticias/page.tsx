@@ -1,5 +1,8 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+
+export const metadata: Metadata = { title: 'Noticias' }
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', {

@@ -156,7 +156,7 @@ export default async function PreinscripcionesAdminPage({
                 <select
                   name="estado"
                   defaultValue={p.estado}
-                  className="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   {ESTADOS.map((e) => (
                     <option key={e} value={e}>
@@ -166,9 +166,9 @@ export default async function PreinscripcionesAdminPage({
                 </select>
                 <button
                   type="submit"
-                  className="rounded-lg bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-700 transition-colors"
                 >
-                  ✓
+                  Guardar
                 </button>
               </form>
             </div>
